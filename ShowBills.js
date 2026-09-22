@@ -7,56 +7,53 @@ async function getProducts() {
 
     data2.forEach((Data2) => {
         let Grand = 0;
+        const products = Array.isArray(Data2.products) ? Data2.products : [];
+
         show.innerHTML += `
-                 <h2>Customer: ${Data2.customerName}</h2>
-                            `;
-        Data2.products.forEach((product, index) => {
-            // Safety: agar total missing/undefined hai to khud calculate karo
-            let qty = Number(product.quant1) || 0;
-            let price = Number(product.price1) || 0;
-            let total = product.total !== undefined && !isNaN(Number(product.total))
+            <h2>Customer: ${Data2.customerName || "Unknown customer"}</h2>
+        `;
+
+        products.forEach((product, index) => {
+            let qty = Number(product?.quant1) || 0;
+            let price = Number(product?.price1) || 0;
+            let total = product?.total !== undefined && !isNaN(Number(product.total))
                 ? Number(product.total)
                 : qty * price;
 
             Grand += total;
 
             show.innerHTML += `
-<table class="bill-table">
-    <thead>
-        <tr>
-            <th>Product Name</th>
-            <th>Product Quantity</th>
-            <th>Product Price</th>
-            <th>Total Bill</th>
-            <th>Action</th>
-        </tr>
-    </thead>
-
-    <tbody>
-        <tr>
-            <td>${product.product1 ?? "N/A"}</td>
-            <td>${qty}</td>
-            <td>${price}</td>
-            <td>${total}</td>
-            <td>
-                <button onclick="editUser(${Data2.id}, ${index})">
-                    Edit
-                </button>
-
-                <button onclick="Delete(${Data2.id}, ${index})">
-                    Delete
-                </button>
-            </td>
-        </tr>
-    </tbody>
-</table>
-`;
+                <table class="bill-table">
+                    <thead>
+                        <tr>
+                            <th>Product Name</th>
+                            <th>Product Quantity</th>
+                            <th>Product Price</th>
+                            <th>Total Bill</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>${product?.product1 ?? "N/A"}</td>
+                            <td>${qty}</td>
+                            <td>${price}</td>
+                            <td>${total}</td>
+                            <td>
+                                <button onclick="editUser(${Data2.id}, ${index})">Edit</button>
+                                <button onclick="Delete(${Data2.id}, ${index})">Delete</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            `;
         });
+
         show.innerHTML += `
-<div class="grand-total">
-    <strong>Grand Total: ${Grand}</strong>
-</div>
-`;
+            <div class="grand-total">
+                <strong>Grand Total: ${Grand}</strong>
+            </div>
+        `;
     });
 }
 
@@ -84,11 +81,10 @@ async function editUser(ID, productIndex) {
     const userData = await response.json();
     const product = userData.products[productIndex];
 
-    let name = prompt("Product Name", product.product1);
-    let quant = prompt("Quantity", product.quant1);
-    let price = prompt("Price", product.price1);
+    let name = prompt("Product Name", product?.product1 ?? "");
+    let quant = prompt("Quantity", product?.quant1 ?? "");
+    let price = prompt("Price", product?.price1 ?? "");
 
-    // Cancel dabaya to kuch na ho
     if (name === null || quant === null || price === null) return;
 
     let total = parseFloat(quant) * Number(price);
