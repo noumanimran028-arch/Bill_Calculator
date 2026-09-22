@@ -1,84 +1,61 @@
-            body {
-                margin: 0;
-                padding: 20px;
-                font-family: "Segoe UI", Arial, sans-serif;
-                color: #1e293b;
-                background-color:#ffeed3;
-            }
+async function getProducts() {
+    const Response2 = await fetch("https://6a80061eec7a640e63ab875c.mockapi.io/user/user");
+    const data2 = await Response2.json();
+    console.log(data2);
 
-            .bill-table {
-                width: 80%;
-                margin: 30px auto;
-                border-collapse: collapse;
-                text-align: center;
-                font-family: "Segoe UI", Arial, sans-serif;
-                background-color: white;
-                border-radius: 10px;
-                overflow: hidden;
-                box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
-            }
+    let show = document.querySelector("#show");
+    show.innerHTML = "";
 
-            .bill-table th {
-                background-color: #f97316;
-                color: white;
-                padding: 14px;
-                border: 1px solid #fed7aa;
-                font-size: 15px;
-                font-weight: 600;
-            }
+    const bills = Array.isArray(data2) ? data2 : [];
 
-            .bill-table td {
-                padding: 12px;
-                border: 1px solid #e2e8f0;
-                font-size: 14px;
-            }
+    bills.forEach((Data2) => {
+        let Grand = 0;
+        const products = Array.isArray(Data2.products) ? Data2.products : [];
 
-            .bill-table tr:nth-child(even) {
-                background-color: #f8fafc;
-            }
+        show.innerHTML += `
+            <h2>Customer: ${Data2.customerName || "Unknown customer"}</h2>
+        `;
 
-            .bill-table tr:hover {
-                background-color: #fff7ed;
-                transition: 0.2s;
-            }
+        products.forEach((product, index) => {
+            let qty = Number(product?.quant1) || 0;
+            let price = Number(product?.price1) || 0;
+            let total = product?.total !== undefined && !isNaN(Number(product.total))
+                ? Number(product.total)
+                : qty * price;
 
-            .bill-table button {
-                padding: 8px 14px;
-                margin: 3px;
-                border: none;
-                border-radius: 6px;
-                cursor: pointer;
-                background: #f97316;
-                color: white;
-                font-size: 13px;
-                font-weight: 500;
-                transition: 0.2s;
-            }
+            Grand += total;
 
-            .bill-table button:hover {
-                background: #ea580c;
-                transform: translateY(-1px);
-            }
+            show.innerHTML += `
+                <table class="bill-table">
+                    <thead>
+                        <tr>
+                            <th>Product Name</th>
+                            <th>Product Quantity</th>
+                            <th>Product Price</th>
+                            <th>Total Bill</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>${product?.product1 ?? "N/A"}</td>
+                            <td>${qty}</td>
+                            <td>${price}</td>
+                            <td>${total}</td>
+                            <td>
+                                <button onclick="editUser(${Data2.id}, ${index})">Edit</button>
+                                <button onclick="Delete(${Data2.id}, ${index})">Delete</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            `;
+        });
 
-            .grand-total {
-                width: 80%;
-                margin: 20px auto;
-                padding: 16px;
-                text-align: right;
-                font-size: 21px;
-                font-weight: 700;
-                border-top: 2px solid #f97316;
-                font-family: "Segoe UI", Arial, sans-serif;
-                color: #1e293b;
-                box-sizing: border-box;
-            }
-
-            h2 {
-                color: #1e293b;
-                font-family: "Segoe UI", Arial, sans-serif;
-                text-align: center;
-                font-size: 30px;
-                font-weight: 700;
-                margin: 25px 0;
-                letter-spacing: 0.5px;
-            }
+        show.innerHTML += `
+            <div class="grand-total">
+                <strong>Grand Total: ${Grand}</strong>
+            </div>
+        `;
+    });
+}
